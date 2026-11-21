@@ -2,8 +2,4 @@
 __pycache__/
 *.py[cod]
 
-# Editors / OS
 .vscode/
-.idea/
-Thumbs.db
-.DS_Store
