@@ -11,11 +11,13 @@
     --sans:"Segoe UI","Microsoft YaHei","PingFang SC",system-ui,sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
   body{font-family:var(--sans);background:var(--bg);color:var(--ink);
-    background-image:radial-gradient(#CBD5E1 1px,transparent 1px);background-size:24px 24px;}
+    background-image:radial-gradient(#CBD5E1 1px,transparent 1px);background-size:24px 24px;
+    display:flex;flex-direction:column;overflow:hidden}
 
-  header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
-    padding:14px 28px;background:#fff;border-bottom:1px solid #EDF1F6;position:sticky;top:0;z-index:20;
+  header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;flex:0 0 auto;
+    padding:14px 28px;background:#fff;border-bottom:1px solid #EDF1F6;position:relative;z-index:20;
     box-shadow:0 1px 2px rgba(15,23,42,.05),0 4px 16px rgba(15,23,42,.04)}
   header h1{font-size:19px;font-weight:700;letter-spacing:.5px;padding-left:13px;position:relative}
   header h1::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);
@@ -30,7 +32,8 @@
     box-shadow:0 2px 8px rgba(51,65,85,.25)}
   .btn.primary:hover{background:linear-gradient(180deg,#526179,#3E4C62)}
 
-  #canvas{position:relative;padding:36px 44px 16px;width:fit-content;max-width:96vw;min-width:960px;margin:0 auto}
+  #viewport{flex:1 1 auto;min-height:0;overflow:auto}   /* 画布独立滚动：顶栏固定不遮内容 */
+  #canvas{position:relative;padding:48px 44px 16px;width:fit-content;max-width:96vw;min-width:960px;margin:0 auto}
   #edges{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
   #elabels{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:10}
   #elabels text{transition:opacity .15s}
@@ -96,9 +99,11 @@
   <button class="btn primary" onclick="smartTier()">智能折叠</button>
 </header>
 
+<div id="viewport">
 <div id="canvas">
   <svg id="edges"></svg>
   <div id="rows"></div>
+</div>
 </div>
 
 <div id="legend-ball" aria-label="图例与操作说明">
@@ -482,6 +487,7 @@ function draw(){
           if(ox>0&&oy>0)m=Math.max(m,ox*oy);};
         for(const id in rects)hit(rects[id]);
         for(const c of placed)hit(c);
+        hit({left:-1e5,right:1e5,top:-1e5,bottom:8});   // 画布上缘视作障碍：标签不得越出顶边（滚动视口会裁剪）
         return m;};
       const overlap=(x,y,w)=>hitBox(x,y,w/2+4,13);
       // 中文竖排放置（每字一行）：窄列间隙放不下横排时的兜底
